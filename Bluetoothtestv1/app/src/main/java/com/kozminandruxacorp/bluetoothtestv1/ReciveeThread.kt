@@ -24,7 +24,7 @@ class ReciveeThread(val bSocket: BluetoothSocket) : Thread() {
     }
 
     override fun run() {
-        val buf = ByteArray(100)
+        val buf = ByteArray(1000)
         while (true) {
             try {
                 val size = inStream?.read(buf)

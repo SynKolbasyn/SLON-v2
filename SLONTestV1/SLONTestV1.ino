@@ -45,23 +45,17 @@ double speedPID(double dist) {
 double degreePID(double degree, double etalonDegree) {
   dt = millis() - oldDt;
 
-  double pk = 0.0;
-  double ik = 0.0;
+  double pk = 3.3333333333333335;
+  double ik = 0.2;
   double dk = 0.1;
 
   double err = etalonDegree - degree ;
 
-  if( stopCalc ) {
-    debug("err = " + String(etalonDegree) + "[etalonDegree)] - " + String(degree) + "[degree]" + " = " + String(err) + "[err]");
-    debug("i = " + String(i) + "[i] + " + String(err) + " * " + String(dt) + "[err * dt]" + " = " + String((i + err * dt)) + "[(i + err * dt)]");
-    return prevC;
-  }
-
-
   double p = err * pk;
-  i = (i + err * dt) * ik;
+  if (isnan(i)) {
+    i = (i + err * dt) * ik;
+  }
   double d = (err - oldErr) / dt * dk;
-
   double u = p + i + d;
   
   oldErr = err;
@@ -133,25 +127,14 @@ void setup() {
 
 void loop() {
   String a = getAndroidData();
-  a = "";
   if (a == "-1"){
     return;
   }
-  double dist = 20;//getDist(a);
-  //double degree = getDegree(a);
-  double etalonDegree = 0;//getEtalonDegree(a);
-  double newC = 0;
-  //double u = PID(dist, degree, etalonDegree);
-  newC = degreePID(c, 0);
-  if( stopCalc ) {
-    Serial.println("---------------------------------------------------------------------------------------------------- Stop calc");
-    return;
-  }
-  c = c + newC;
-  if( (prevC < 0.01) && (c >= 0.01) ) {
-    stopCalc = true;
-  }
-  prevC = c;
+  double dist = getDist(a);
+  double degree = getDegree(a);
+  double etalonDegree = getEtalonDegree(a);
+  double u = degreePID(degree, etalonDegree);
+  Serial.println(u);
   delay(100);
   Serial.println("----------------------------------------------------------------------------------------------------");
 }
